@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "557652370538",
+    "project_id": "chatter-app-15118",
+    "storage_bucket": "chatter-app-15118.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:557652370538:android:4768fb02b5dae0ca5d9613",
+        "android_client_info": {
+          "package_name": "com.project1.chat_service"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqoSbQmY8FdU6wJMNNUl7Rs2zXPYlPIkA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

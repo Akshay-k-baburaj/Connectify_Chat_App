@@ -1,0 +1,53 @@
+plugins {
+    id "com.android.application"
+    id 'com.google.gms.google-services'
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+dependencies {
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:33.3.0')
+}
+
+// Load local.properties file
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+
+android {
+    namespace = "com.project1.chat_service"
+
+    ndkVersion = localProperties.getProperty('flutter.ndkVersion')
+    compileSdk = 34
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_18
+        targetCompatibility = JavaVersion.VERSION_18
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_18
+    }
+
+    defaultConfig {
+        // Use the properties loaded from local.properties
+        applicationId = "com.project1.chat_service"
+        minSdkVersion 23
+        targetSdkVersion localProperties.getProperty('flutter.targetSdkVersion').toInteger()
+        versionCode localProperties.getProperty('flutter.versionCode').toInteger()
+        versionName localProperties.getProperty('flutter.versionName')
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
