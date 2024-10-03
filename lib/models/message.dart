@@ -6,13 +6,15 @@ class Message{
   final String receiverID;
   final String message;
   final  timestamp;
+  final String? fileUrl;
 
   Message({
     required this.senderID,
     required this.senderEmail,
     required this.receiverID,
     required this.message,
-    required this.timestamp
+    required this.timestamp,
+    this.fileUrl,
 });
 
   // convert to map
