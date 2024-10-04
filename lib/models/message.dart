@@ -1,11 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class Message{
+class Message {
   final String senderID;
   final String senderEmail;
   final String receiverID;
   final String message;
-  final  timestamp;
+  final Timestamp timestamp;
   final String? fileUrl;
 
   Message({
@@ -15,17 +16,33 @@ class Message{
     required this.message,
     required this.timestamp,
     this.fileUrl,
-});
+  });
 
   // convert to map
-Map<String, dynamic> toMap(){
-  return{
-    'senderID':senderID,
-    'senderEmail':senderEmail,
-    'receiverID':receiverID,
-    'message':message,
-    'timestamp':timestamp,
-
-  };
-}
+  Map<String, dynamic> toMap() {
+    return fileUrl == null
+        ? {
+            'senderID': senderID,
+            'senderEmail': senderEmail,
+            'receiverID': receiverID,
+            'message': message,
+            'timestamp': timestamp,
+          }
+        : fileUrl!.isEmpty
+            ? {
+                'senderID': senderID,
+                'senderEmail': senderEmail,
+                'receiverID': receiverID,
+                'message': message,
+                'timestamp': timestamp,
+              }
+            : {
+                'senderID': senderID,
+                'senderEmail': senderEmail,
+                'receiverID': receiverID,
+                'message': message,
+                'timestamp': timestamp,
+                'fileUrl': fileUrl
+              };
+  }
 }

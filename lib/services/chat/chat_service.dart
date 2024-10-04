@@ -18,7 +18,8 @@ class ChatService {
   }
 
   // Send message
-  Future<void> sendMessage(String receiverID, String message, {String? fileUrl}) async {
+  Future<void> sendMessage(String receiverID, String message,
+      {String? fileurl}) async {
     // Get current user info
     final String currentUserID = _auth.currentUser!.uid;
     final String currentUserEmail = _auth.currentUser!.email!;
@@ -31,7 +32,7 @@ class ChatService {
       receiverID: receiverID,
       message: message,
       timestamp: timestamp,
-      fileUrl: fileUrl, // Include the fileUrl in the Message
+      fileUrl: fileurl, // Include the fileUrl in the Message
     );
 
     // Construct chat room ID for two users

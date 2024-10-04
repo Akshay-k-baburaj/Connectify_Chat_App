@@ -8,8 +8,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-import 'dart:typed_data'; // Import for Uint8List
+// import 'dart:typed_data'; // Import for Uint8List
 import 'package:flutter/foundation.dart'; // Import for kIsWeb
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart'; // Import the emoji picker package
 
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
@@ -28,6 +29,7 @@ class _ChatPageState extends State<ChatPage> {
   final AuthService _authService = AuthService();
   FocusNode myFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
+  bool showEmojiPicker = false; // State to manage emoji picker visibility
 
   @override
   void initState() {
@@ -48,11 +50,13 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void scrollDown() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(seconds: 1),
-      curve: Curves.fastOutSlowIn,
-    );
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent + 500,
+        duration: const Duration(seconds: 1),
+        curve: Curves.easeInOutCubic,
+      );
+    }
   }
 
   // Pick and send an image
@@ -61,21 +65,11 @@ class _ChatPageState extends State<ChatPage> {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      if (kIsWeb) {
-        Uint8List? imageBytes = await image.readAsBytes();
-
-        if (imageBytes != null) {
-          String imageUrl = await uploadFileBytesToFirebase(imageBytes, image.name);
-          print("Sending message with file URL: $imageUrl"); // Print statement added here
-          await _chatService.sendMessage(widget.receiverID, '', fileUrl: imageUrl);
-        }
-      } else {
-        File file = File(image.path);
-        String imageUrl = await uploadFileToFirebase(file);
-        print("Sending message with file URL: $imageUrl"); // Print statement added here
-        await _chatService.sendMessage(widget.receiverID, '', fileUrl: imageUrl);
-      }
+      File file = File(image.path);
+      String imageUrl = await uploadFileToFirebase(file);
+      await _chatService.sendMessage(widget.receiverID, '', fileurl: imageUrl);
     }
+
     scrollDown();
   }
 
@@ -83,20 +77,23 @@ class _ChatPageState extends State<ChatPage> {
   void pickAndSendFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
-      if (kIsWeb) {
-        Uint8List? fileBytes = result.files.single.bytes;
+      // if (kIsWeb) {
+      //   Uint8List? fileBytes = result.files.single.bytes;
 
-        if (fileBytes != null) {
-          String fileURL = await uploadFileBytesToFirebase(fileBytes, result.files.single.name);
-          print("Sending message with file URL: $fileURL"); // Print statement added here
-          await _chatService.sendMessage(widget.receiverID, '', fileUrl: fileURL);
-        }
-      } else {
-        File file = File(result.files.single.path!);
-        String fileURL = await uploadFileToFirebase(file);
-        print("Sending message with file URL: $fileURL"); // Print statement added here
-        await _chatService.sendMessage(widget.receiverID, '', fileUrl: fileURL);
-      }
+      //   if (fileBytes != null) {
+      //     String fileURL = await uploadFileBytesToFirebase(
+      //         fileBytes, result.files.single.name);
+      //     print(
+      //         "Sending message with file URL: $fileURL"); // Print statement added here
+      //     await _chatService.sendMessage(widget.receiverID, '',
+      //         fileUrl: fileURL);
+      //   }
+      // } else {
+      File file = File(result.files.single.path!);
+      String fileURL = await uploadFileToFirebase(file);
+      print(
+          "Sending message with file URL: $fileURL"); // Print statement added here
+      await _chatService.sendMessage(widget.receiverID, '', fileurl: fileURL);
     }
     scrollDown();
   }
@@ -104,15 +101,19 @@ class _ChatPageState extends State<ChatPage> {
   // Upload the picked file to Firebase Storage
   Future<String> uploadFileToFirebase(File file) async {
     String fileName = file.path.split('/').last;
-    Reference storageRef = FirebaseStorage.instance.ref().child('uploads/$fileName');
+    Reference storageRef =
+        FirebaseStorage.instance.ref().child('uploads/$fileName');
     UploadTask uploadTask = storageRef.putFile(file);
     TaskSnapshot snapshot = await uploadTask;
-    return await snapshot.ref.getDownloadURL(); // Get the URL of the uploaded file
+    return await snapshot.ref
+        .getDownloadURL(); // Get the URL of the uploaded file
   }
 
   // Upload the picked bytes to Firebase Storage
-  Future<String> uploadFileBytesToFirebase(Uint8List fileBytes, String fileName) async {
-    Reference storageRef = FirebaseStorage.instance.ref().child('uploads/$fileName');
+  Future<String> uploadFileBytesToFirebase(
+      Uint8List fileBytes, String fileName) async {
+    Reference storageRef =
+        FirebaseStorage.instance.ref().child('uploads/$fileName');
     UploadTask uploadTask = storageRef.putData(fileBytes);
     TaskSnapshot snapshot = await uploadTask;
     return await snapshot.ref.getDownloadURL();
@@ -121,10 +122,21 @@ class _ChatPageState extends State<ChatPage> {
   // Send messages
   void sendMessage() async {
     if (_messageController.text.isNotEmpty) {
-      await _chatService.sendMessage(widget.receiverID, _messageController.text);
+      await _chatService.sendMessage(
+        widget.receiverID,
+        _messageController.text,
+      );
       _messageController.clear();
+      setState(() {
+        showEmojiPicker = false; // Hide emoji picker after sending message
+      });
     }
     scrollDown();
+  }
+
+  // Method to handle emoji selection
+  void onEmojiSelected(Emoji emoji) {
+    _messageController.text += emoji.emoji; // Append selected emoji to message
   }
 
   @override
@@ -135,7 +147,8 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             const Icon(Icons.person, color: Colors.grey),
             const SizedBox(width: 10),
-            Text(widget.receiverEmail, style: const TextStyle(color: Colors.grey)),
+            Text(widget.receiverEmail,
+                style: const TextStyle(color: Colors.grey, fontSize: 14)),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -144,6 +157,15 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(child: _buildMessageList()),
+          if (showEmojiPicker) // Show emoji picker if the state is true
+            SizedBox(
+              height: 250, // Height of the emoji picker
+              child: EmojiPicker(
+                onEmojiSelected: (category, emoji) {
+                  onEmojiSelected(emoji);
+                },
+              ),
+            ),
           _buildUserInput(),
         ],
       ),
@@ -165,7 +187,8 @@ class _ChatPageState extends State<ChatPage> {
 
         return ListView(
           controller: _scrollController,
-          children: snapshot.data!.docs.map((doc) => _buildMessageItem(doc)).toList(),
+          children:
+              snapshot.data!.docs.map((doc) => _buildMessageItem(doc)).toList(),
         );
       },
     );
@@ -176,13 +199,14 @@ class _ChatPageState extends State<ChatPage> {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     bool isCurrentUser = data['senderID'] == _authService.getCurrentUser()!.uid;
     String? fileUrl = data['fileUrl'];
-
+    Timestamp timestamp = data['timestamp'];
     return Container(
       alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
       child: ChatBubble(
         message: data['message'] ?? '', // Fallback to an empty string
         isCurrentUser: isCurrentUser,
         fileUrl: fileUrl,
+        timestamp: timestamp,
       ),
     );
   }
@@ -201,6 +225,15 @@ class _ChatPageState extends State<ChatPage> {
             icon: Icon(Icons.image),
             onPressed: pickAndSendImage,
           ),
+          IconButton(
+            icon: Icon(Icons.emoji_emotions), // Emoji button
+            onPressed: () {
+              setState(() {
+                showEmojiPicker =
+                    !showEmojiPicker; // Toggle emoji picker visibility
+              });
+            },
+          ),
           Expanded(
             child: MyTextField(
               hintText: "Type a Message",
@@ -210,7 +243,8 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Container(
-            decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+                color: Colors.green, shape: BoxShape.circle),
             margin: const EdgeInsets.only(right: 25),
             child: IconButton(
               onPressed: sendMessage,

@@ -18,24 +18,24 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.project1.chat_service"
+    namespace = "com.example.chat_service"
 
     ndkVersion = localProperties.getProperty('flutter.ndkVersion')
     compileSdk = 34
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_18
-        targetCompatibility = JavaVersion.VERSION_18
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_18
+        jvmTarget = JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
         // Use the properties loaded from local.properties
         applicationId = "com.project1.chat_service"
-        minSdkVersion 23
+        minSdk 23
         targetSdkVersion localProperties.getProperty('flutter.targetSdkVersion').toInteger()
         versionCode localProperties.getProperty('flutter.versionCode').toInteger()
         versionName localProperties.getProperty('flutter.versionName')
