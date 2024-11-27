@@ -50,12 +50,12 @@ class RegisterPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             //logo
-            Icon(
-              Icons.message,
-              size: 60,
-              color: Theme.of(context).colorScheme.primary,
+            Image.asset(
+              "assets/connectify_logo.png",
+              height: 175,
+              width: 350,
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 20),
 
             // new account
             Text(
