@@ -11,3 +11,54 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+android/app/google-services.json
+*.dart_tool/
+*.flutter-plugins
+*.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Build outputs
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/.symlinks/
+ios/Pods/
+ios/Runner.xcworkspace/
+android/.gradle/
+android/app/build/
+macos/Pods/
+macos/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+web/.dart_tool/
+
+# IntelliJ/VSCode IDE files
+.idea/
+*.iml
+.vscode/
+*.log
+
+# Generated files
+*.lock
+*.tmp
+*.swp
+
+# Firebase configuration
+firebase_options.dart
+
+# Secrets and Keys
+.env
+
+# macOS specific
+.DS_Store
+
+# Windows specific
+Thumbs.db
+
+# Flutter build artifacts
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-version
